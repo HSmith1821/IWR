@@ -13,19 +13,10 @@
 */
 
 /* To do: 
-*   get rid of variable (ex. int) declarations and include in .h file instead 
+*   get rid of variable (ex. int) declarations and include in .h file instead
+*   Instead of defining variables, import cfg file (baud rate, cfg baud rate, ID, etc)
 */
-
-
-
-
-#include <stdio.h>
-#include <string.h>
-#include <fcntl.h>      // File controls
-#include <errno.h>      
-#include <termios.h>    // POSIX
-#include <unistd.h>     // write, read, close
-#include <sys/stat.h>   // Permissions
+#include "iwr_boot.h"
 
 //"device_name": 'Radar_1',
 #define BAUDRATE B921600
@@ -40,14 +31,35 @@
 #define PRELOAD True
 //'preload_json_path' :'src/candor/cfg/com_ports.json'
 #define HARDWARE_TRIGGER False
+#define UART_MAGIC_WORD {0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07}
+
+
+Radar::Radar() {
+    /* TO DO
+    *   Initialize settings from config file (preload)
+    *   Setup hardware trigger
+    *   Call open() function to initialize UART ports
+    */
+}
+
+Radar::~Radar() {
+    // TO DO
+}
+
+void Radar::open(){
+
+}
+
 
 int main() {
 
-    /* To Do: Set Permissions for Serial Ports so all of them are accessible */
 
 
-    /* To Do: instead of opening known Serial Port, go through com ports an find radar board */
-    /* To Do: Determine automatically which ones are the data and config ports */
+    /* To Do: 
+    *   Set Permissions for Serial Ports so all of them are accessible 
+    *   Instead of opening known Serial Port, go through com ports an find radar board 
+    *   Determine automatically which ones are the data and config ports 
+    */
     int serial_port_config = open("/dev/ttyACM0", O_RDWR);
     if(serial_port_config < 0) {
         printf("Error %i opening configuation serial port: %s/n", errno, strerror(errno));
@@ -98,18 +110,30 @@ int main() {
         printf("Error %i setting tty_config attr: %s/n", errno, strerror(errno));
     }
 
+
+
+    /* Basic function to just stream the data from the serial port to the terminal output */
+    /*
     // Make this more streamlined for pulling data in real time
     // Temporary buffer? Queue?
     unsigned char data[128];
     while(1) {
-        int n = read(serial_port_data, &data, sizeof(data));
+        int n = read(serial_port_data, &data, 1); //sizeof(data));
         if(n > 0) {
             for(int i = 0; i < n; i++) {
                 printf("%02x\n", data[i]);
             }   
         }
     }
+    */
 
+    /* Function to:
+        * Initialize the configuration settings from the cfg file
+        * Declare capture_directory
+        * 
+    */
+
+    
 
     close(serial_port_data);
     close(serial_port_config);
