@@ -21,7 +21,7 @@
 //"device_name": 'Radar_1',
 #define BAUDRATE B921600
 #define CONFIG_BAUDRATE B115200
-#define ID 0x30d4da6e
+//#define ID 0x30d4da6e
 #define save_type 'npy'
 #define SAMPLING_RATE 30
 //#define dtype 'np.float32' # Python version data type
@@ -30,6 +30,7 @@
 //'id_config_file': 'src/candor/cfg/id_radar_config_1642.cfg'
 #define PRELOAD True
 //'preload_json_path' :'src/candor/cfg/com_ports.json'
+
 #define HARDWARE_TRIGGER False
 
 
@@ -222,27 +223,57 @@ int16_t Radar::Read(){
 //}
 
 
-void get_TI_ports() {
+char* Radar::get_TI_ports() {
 
-    // Look through tty ports (these are the only options available on this Jetson)
-    // Update the search parameters if the device is on a different port
-    // /dev/ttyACM0-9
-    // /dev/ttyUSB0-9
-    char device_name[20];
-    std::vector<int> ACMDevices;
-    std::vector<int> USBDevices;
-    struct stat buffer;
-    int status;
+    struct udev *udev = udev_new();
+    if(!udev){
+        fprintf(stderr, "ERROR: Unable to create udev in get_TI_ports.\n");
+        return NULL;
+    }
 
-    for(int i = 0; i < 10; i++)
-    {
-        sprintf(device_name, "/dev/ttyACM%d", i);
-        status = lstat(device_name, &buffer);
-        if(!status){
-            ACMDevices.push_back(i);
-            std::cout << device_name << " was found" << std::endl;
+    struct udev_enumerate *enumerate = udev_enumerate_new(udev);
+    udev_enumerate_add_match_subsystem(enumerate, "tty");
+    udev_enumerate_scan_devices(enumerate);
+    struct udev_list_entry *devices, *dev_list_entry;
+    struct udev_device *dev;
+    devices = udev_enumerate_get_list_entry(enumerate);
+
+    udev_list_entry_foreach(dev_list_entry, devices) {
+        const char* path;
+
+        path = udev_list_entry_get_name(dev_list_entry);
+        dev = udev_device_new_from_syspath(udev, path);
+
+        dev = udev_device_get_parent_with_subsystem_devtype(dev, "usb", "usb_device");
+        if(dev){
+            /* Print for Debugging
+            //printf("Device Node Path: %s\n", udev_device_get_devnode(dev));
+            printf("  VID/PID: %s %s\n",
+                    udev_device_get_sysattr_value(dev,"idVendor"),
+                    udev_device_get_sysattr_value(dev, "idProduct"));
+            printf("  %s\n  %s\n",
+                    udev_device_get_sysattr_value(dev,"manufacturer"),
+                    udev_device_get_sysattr_value(dev,"product"));
+            printf("  serial: %s\n\n",
+                    udev_device_get_sysattr_value(dev, "serial"));
+            udev_device_unref(dev);
+            */
+            char *serial_number = (char*)udev_device_get_sysattr_value(dev, "serial");
+            udev_device_unref(dev);
+
+            //if(serial_number == /*Serial Number of Board as in cfg json file*/){
+                // To Do
+            //}
+
         }
     }
+	/* Free the enumerator object */
+	udev_enumerate_unref(enumerate);
+
+	udev_unref(udev);
+
+
+    return NULL;
 
     // for(int i = 0; i < 10; i++)
     // {
@@ -270,10 +301,14 @@ int main() {
     
     Radar* radar = new Radar();
     radar->Open();
+
+    radar->get_TI_ports();
+    /*
     for(int i = 0; i < 100; i++)
     {
         radar->Read();
     }
+    */
     radar->Close();
     delete radar;
     
