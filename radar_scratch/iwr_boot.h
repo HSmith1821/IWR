@@ -7,6 +7,7 @@
 #include <unistd.h>     // write, read, close
 #include <sys/stat.h>   // Permissions
 #include <iomanip>
+#include <vector>
 
 
 class Radar {
@@ -16,11 +17,12 @@ class Radar {
 
         void Open();
         void Close();
-        void Read();
+        int16_t Read();
+        void _start_many_radar();
     private:
         int serial_port_config;
         int serial_port_data;
-        const char *serial_port_data_name = "/dev/ttyACM1";
+        const char *serial_port_data_name = "/dev/ttyACM2";
         const char *serial_port_config_name = "/dev/ttyACM0";
         unsigned char UART_MAGIC_WORD[9] = {0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, '\0'};
 

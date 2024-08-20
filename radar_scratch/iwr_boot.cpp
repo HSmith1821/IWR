@@ -24,7 +24,7 @@
 #define ID 0x30d4da6e
 #define save_type 'npy'
 #define SAMPLING_RATE 30
-#define dtype 'np.float32'
+//#define dtype 'np.float32' # Python version data type
 //'config_file': 'src/candor/cfg/radar_config_1642.cfg'
 //'config_file_hr': 'src/candor/cfg/radar_config_1642_ht.cfg'
 //'id_config_file': 'src/candor/cfg/id_radar_config_1642.cfg'
@@ -131,12 +131,13 @@ void Radar::Close(){
 }
 
 
-void Radar::Read(){
+int16_t Radar::Read(){
     unsigned char data[] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, '\0'};
     unsigned char tmp;
     unsigned char byte[1];
     unsigned char range_bins[] = {0x00, 0x00, '\0'};
-    std::cout << "Variables Initialized" << std::endl;
+    unsigned char output[3] = {0x00, 0x00, '\0'};
+    //std::cout << "Variables Initialized" << std::endl;
 
     // Look for the Magic Word at the start of the header
     while(memcmp(data, UART_MAGIC_WORD, sizeof(UART_MAGIC_WORD)) != 0)
@@ -158,35 +159,127 @@ void Radar::Read(){
         // Print for Debugging
         for(int z = 0; z < sizeof(data) - 1; z++)
         {
-            std::cout << int(data[z]) << " ";
+            //std::cout << int(data[z]) << " ";
         }
-        std::cout << std::endl;
+        //std::cout << std::endl;
         
     }
-
-    std::cout << "Start to read # of bins" << std::endl;
+    //std::cout << "Header Found!" << std::endl;
+    //std::cout << "Start to read # of bins" << std::endl;
+    
     // Read the number of bins
     int n = read(serial_port_data, &range_bins, 2);
     if (n < 2 ){
         printf("Error %i setting tty_data attr: %s/n", errno, strerror(errno));
     }
-    std::cout << "Got this far" << std::endl;
-    //uint16_t range_bins_num = ((uint16_t)range_bins[0] << 8) | range_bins[1];   //two uint8 to one uint16
-
-    //unsigned char data_frame[range_bins_num];
     
+    //std::cout << std::hex << range_bins[0] << std::endl;
+    //std::cout << std::hex << range_bins[1] << std::endl;
+    //std::cout << uint16_t(range_bins[0]) << std::endl;
+    //std::cout << uint16_t(range_bins[1]) << std::endl;
+
+    uint16_t range_bins_num = ((uint16_t)range_bins[0] << 8) | range_bins[1];   //two uint8 to one uint16
+    //std::cout << "range_bins_num = " << range_bins_num << std::endl;            // 128
+    int data_frame[range_bins_num + 1];
+
+    
+    for (int i = 0; i < range_bins_num; i++)
+    {
+        int n = read(serial_port_data, &output, 2);
+        if (n < 0){
+            printf("Error %i setting tty_data attr: %s/n", errno, strerror(errno));
+        }
+        int16_t output_index = ((int16_t)output[0] << 8) | (int16_t)output[1];
+        //std::cout << output_index << std::endl;
+        data_frame[i] = output_index;
+    }
+    
+    int16_t sum_of_bins = 0;
+
+    // Make these values come from the cfg file
+    int min_range = 0;
+    int max_range = 20;
+
+    for (int i = min_range; i < max_range + 1; i++)
+    {
+        //std::cout << "Sum of bins: " << sum_of_bins << std::endl;
+        //std::cout << "data frame: " << data_frame[i] << std::endl;
+        sum_of_bins = sum_of_bins + data_frame[i];
+    }
+
+    std::cout << sum_of_bins << std::endl;
+    return sum_of_bins;
 }
 
 
+
+//void Radar::_start_many_radar(cfg) {
+    
+    // To Do:
+    //  assert cfg is not zero/empty
+
+    // 
+//}
+
+
+void get_TI_ports() {
+
+    // Look through tty ports (these are the only options available on this Jetson)
+    // Update the search parameters if the device is on a different port
+    // /dev/ttyACM0-9
+    // /dev/ttyUSB0-9
+    char device_name[20];
+    std::vector<int> ACMDevices;
+    std::vector<int> USBDevices;
+    struct stat buffer;
+    int status;
+
+    for(int i = 0; i < 10; i++)
+    {
+        sprintf(device_name, "/dev/ttyACM%d", i);
+        status = lstat(device_name, &buffer);
+        if(!status){
+            ACMDevices.push_back(i);
+            std::cout << device_name << " was found" << std::endl;
+        }
+    }
+
+    // for(int i = 0; i < 10; i++)
+    // {
+    //     sprintf(device_name, "/dev/ttyUSB%d", i);
+    //     status = lstat(device_name, &buffer);
+    //     if(!status){
+    //         USBDevices.push_back(i);
+    //         std::cout << device_name << " was found" << std::endl;
+    //     }
+    // }
+    
+    // Add the device if it has the dev board serial port
+    // Add the corresponding ports for the device
+    
+
+    // Make sure that there are only ports in multiples of 2 (and at least 2 ports)
+
+    // Return the ports that were found
+}
 
 
 
 int main() {
 
-    Radar radar = Radar();
-    radar.Open();
-    radar.Read();
-    radar.Close();
+    
+    Radar* radar = new Radar();
+    radar->Open();
+    for(int i = 0; i < 100; i++)
+    {
+        radar->Read();
+    }
+    radar->Close();
+    delete radar;
+    
+    //get_TI_ports();
+    //radar.Read();
+    //radar.Close();
     /* Basic function to just stream the data from the serial port to the terminal output */
     /*
     // Make this more streamlined for pulling data in real time
