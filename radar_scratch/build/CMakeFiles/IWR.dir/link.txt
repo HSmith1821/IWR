@@ -1,1 +1,1 @@
-/usr/bin/c++ CMakeFiles/IWR.dir/src/iwr_boot.cpp.o -o IWR  -ludev
+/usr/bin/c++ CMakeFiles/IWR.dir/src/iwr_boot.cpp.o CMakeFiles/IWR.dir/src/json/json_functions.cpp.o -o IWR  -ludev

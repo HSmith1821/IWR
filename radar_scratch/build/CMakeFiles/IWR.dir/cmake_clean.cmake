@@ -1,6 +1,8 @@
 file(REMOVE_RECURSE
   "CMakeFiles/IWR.dir/src/iwr_boot.cpp.o"
   "CMakeFiles/IWR.dir/src/iwr_boot.cpp.o.d"
+  "CMakeFiles/IWR.dir/src/json/json_functions.cpp.o"
+  "CMakeFiles/IWR.dir/src/json/json_functions.cpp.o.d"
   "IWR"
   "IWR.pdb"
 )

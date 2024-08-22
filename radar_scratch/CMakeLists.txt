@@ -26,10 +26,17 @@ FetchContent_MakeAvailable(nlohmann_json)
 # Add the source files
 set(SOURCES
     src/iwr_boot.cpp
+    src/json/json.hpp
+    src/json/json_functions.cpp
+    src/cfg/adv_cams.json
 )
 
 # Define the executable target
 add_executable(IWR ${SOURCES})
+
+# Add adv_cams json file
+file(COPY src/cfg/adv_cams.json
+DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
 # Link the libudev library
 target_link_libraries(IWR ${UDEV_LIBRARIES})

@@ -153,6 +153,30 @@ src/iwr_boot.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/IWR.dir/build.make CMakeFiles/IWR.dir/src/iwr_boot.cpp.s
 .PHONY : src/iwr_boot.cpp.s
 
+src/json/json_functions.o: src/json/json_functions.cpp.o
+.PHONY : src/json/json_functions.o
+
+# target to build an object file
+src/json/json_functions.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/IWR.dir/build.make CMakeFiles/IWR.dir/src/json/json_functions.cpp.o
+.PHONY : src/json/json_functions.cpp.o
+
+src/json/json_functions.i: src/json/json_functions.cpp.i
+.PHONY : src/json/json_functions.i
+
+# target to preprocess a source file
+src/json/json_functions.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/IWR.dir/build.make CMakeFiles/IWR.dir/src/json/json_functions.cpp.i
+.PHONY : src/json/json_functions.cpp.i
+
+src/json/json_functions.s: src/json/json_functions.cpp.s
+.PHONY : src/json/json_functions.s
+
+# target to generate assembly for a file
+src/json/json_functions.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/IWR.dir/build.make CMakeFiles/IWR.dir/src/json/json_functions.cpp.s
+.PHONY : src/json/json_functions.cpp.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -165,6 +189,9 @@ help:
 	@echo "... src/iwr_boot.o"
 	@echo "... src/iwr_boot.i"
 	@echo "... src/iwr_boot.s"
+	@echo "... src/json/json_functions.o"
+	@echo "... src/json/json_functions.i"
+	@echo "... src/json/json_functions.s"
 .PHONY : help
 
 

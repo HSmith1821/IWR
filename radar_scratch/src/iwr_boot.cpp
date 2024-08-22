@@ -17,6 +17,8 @@
 *   Instead of defining variables, import cfg file (baud rate, cfg baud rate, ID, etc)
 */
 #include "iwr_boot.h"
+#include "json/json_functions.h"
+#include "json/json.hpp"
 
 //"device_name": 'Radar_1',
 #define BAUDRATE B921600
@@ -24,22 +26,17 @@
 //#define ID 0x30d4da6e
 #define save_type 'npy'
 #define SAMPLING_RATE 30
-//#define dtype 'np.float32' # Python version data type
-//'config_file': 'src/candor/cfg/radar_config_1642.cfg'
-//'config_file_hr': 'src/candor/cfg/radar_config_1642_ht.cfg'
-//'id_config_file': 'src/candor/cfg/id_radar_config_1642.cfg'
 #define PRELOAD True
-//'preload_json_path' :'src/candor/cfg/com_ports.json'
-
 #define HARDWARE_TRIGGER False
 
 
-Radar::Radar() {
+Radar::Radar(nlohmann::json t_config) {
     /* TO DO
     *   Initialize settings from config file (preload)
     *   Setup hardware trigger
     *   Call open() function to initialize UART ports
     */
+   this->m_config = t_config;
 }
 
 Radar::~Radar() {
@@ -237,6 +234,7 @@ char* Radar::get_TI_ports() {
     struct udev_list_entry *devices, *dev_list_entry;
     struct udev_device *dev;
     devices = udev_enumerate_get_list_entry(enumerate);
+    
 
     udev_list_entry_foreach(dev_list_entry, devices) {
         const char* path;
@@ -246,7 +244,7 @@ char* Radar::get_TI_ports() {
 
         dev = udev_device_get_parent_with_subsystem_devtype(dev, "usb", "usb_device");
         if(dev){
-            /* Print for Debugging
+            ///* Print for Debugging
             //printf("Device Node Path: %s\n", udev_device_get_devnode(dev));
             printf("  VID/PID: %s %s\n",
                     udev_device_get_sysattr_value(dev,"idVendor"),
@@ -256,15 +254,31 @@ char* Radar::get_TI_ports() {
                     udev_device_get_sysattr_value(dev,"product"));
             printf("  serial: %s\n\n",
                     udev_device_get_sysattr_value(dev, "serial"));
-            udev_device_unref(dev);
-            */
-            char *serial_number = (char*)udev_device_get_sysattr_value(dev, "serial");
-            udev_device_unref(dev);
+            //*/
 
-            //if(serial_number == /*Serial Number of Board as in cfg json file*/){
-                // To Do
-            //}
+            char *str_serial_number = (char*)udev_device_get_sysattr_value(dev, "serial");
+            //uint32_t serial_number = (uint32_t)strtol(str_serial_number, NULL, 16);
 
+            if(strcmp(str_serial_number, "R0051028") == 0){
+                printf("SERIAL NUMER IS CORRECT");
+                
+
+                
+
+                char *devname = (char*)udev_device_get_property_value(dev, "DEVPATH");
+                printf("%s\n", devname);
+                if(devname == NULL){
+                    udev_device_unref(dev);
+                    continue;
+                }
+                
+                
+                //char* return_val = new char [strlen(devname)];
+                //strcpy(return_val, devname);
+
+
+            }
+            udev_device_unref(dev);
         }
     }
 	/* Free the enumerator object */
@@ -298,8 +312,17 @@ char* Radar::get_TI_ports() {
 
 int main() {
 
-    
-    Radar* radar = new Radar();
+    std::string device_name = "radar";
+    std::vector<std::string> names;
+    names.push_back("radar_1");
+
+    const std::string &file_in = "adv_cams.json";
+    const std::string &text = readFile(file_in);
+    auto jv = nlohmann::json::parse(text);
+    auto &obj = jv["adv_cam_cfg"]["radar_1"];
+
+
+    Radar* radar = new Radar(obj);
     radar->Open();
 
     radar->get_TI_ports();

@@ -13,8 +13,18 @@
 
 
 class Radar {
+    private:
+        int serial_port_config;
+        int serial_port_data;
+        const char *serial_port_data_name = "/dev/ttyACM1";
+        const char *serial_port_config_name = "/dev/ttyACM0";
+        unsigned char UART_MAGIC_WORD[9] = {0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, '\0'};
+    protected:
+        nlohmann::json m_config;
     public:
-        Radar();
+        /// @brief Constructor for Radar Class
+        /// @param t_config JSON object containing config settings for radar
+        Radar(nlohmann::json t_config);
         ~Radar();
 
         void Open();
@@ -22,11 +32,5 @@ class Radar {
         int16_t Read();
         void _start_many_radar();
         char* get_TI_ports();
-    private:
-        int serial_port_config;
-        int serial_port_data;
-        const char *serial_port_data_name = "/dev/ttyACM1";
-        const char *serial_port_config_name = "/dev/ttyACM0";
-        unsigned char UART_MAGIC_WORD[9] = {0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, '\0'};
 
 };

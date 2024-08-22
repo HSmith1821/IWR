@@ -1,0 +1,46 @@
+{
+    "adv_cam_cfg": {
+        "dummy1": {
+            "device_name": "dummy1",
+            "sampling_rate": 30,
+            "save_type": "npy",
+            "serial_num": 123456789,
+            "shape": [1080, 1920, 3],
+            "dtype": "uint8_t",
+            "dtype_size": 1,
+            "size": 6220800
+        },
+    
+        "nano_1": {
+            "device_name": "nano_1",
+            "sampling_rate": 30,
+            "save_type": "npy",
+            "serial_num": 123456789,
+            "shape": [1200, 1920, 3],
+            "dtype": "uint8_t",
+            "dtype_size": 1,
+            "size": 6912000
+        }, 
+
+        "radar_1": {
+            "device_name": "Radar_1",
+            "baud_rate": 921600,
+            "config_baud_rate": 115200,
+            "id": "0x30d4da6e",
+            "save_type": "npy",
+            "sampling_rate": 30,
+            "dtype": "float32",
+            "config_file": "src/candor/cfg/radar_config_1642.cfg",
+            "config_file_hr": "src/candor/cfg/radar_config_1642_ht.cfg",
+            "id_config_file": "src/candor/cfg/id_radar_config_1642.cfg",
+            "preload": true,
+            "preload_json_path": "src/candor/cfg/com_ports.json",
+            "hardware_trigger": true
+        }
+    
+    
+    
+    }
+
+    
+}
